@@ -135,10 +135,10 @@ cognitoUser.authenticateUser(authDetails, {
                         searchTerm: getSearchTerm(),
                     }),
                 }
-            ).catch(error => {console.log(error); return [];});
+            ).catch(error => {console.log(error); return "Error!";});
             let noResults;
             let scores;
-            if (batchResponses == []){
+            if (batchResponses === "Error!"){
                 noResults = true;
             } else {
                 const jsons = await batchResponses.json();
@@ -147,9 +147,9 @@ cognitoUser.authenticateUser(authDetails, {
             }
             for (let i = 0; i < urls.length; i++) {
                 // Get raw scores (-1 to 1, can sometimes be -2 if error on Lambda side) from received jsons
-                const rawEmotionScore = scores.emotion[i];
-                const rawActionScore = scores.usefulness[i];
-                const rawKnowledgeScore = scores.knowledge[i];
+                const rawEmotionScore = noResults ? 0 : scores.emotion[i];
+                const rawActionScore = noResults ? 0 : scores.usefulness[i];
+                const rawKnowledgeScore = noResults ? 0 : scores.knowledge[i];
 
                 // Convert to user-friendly scores (0 to 100)
                 const emotionScore = Number((rawEmotionScore + 1) / 2 * 100).toFixed(0);
