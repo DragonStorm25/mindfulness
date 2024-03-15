@@ -112,11 +112,15 @@ cognitoUser.authenticateUser(authDetails, {
         });
 
         const getScores = async () => {
-            const resultsArray = document.querySelectorAll('#rso > div');
+            const resultsArray = [];
             const urls = [];
-            for (const result of resultsArray) {
-                const link = result.querySelector('a');
-                urls.push(link.href);
+            for (const x of document.getElementsByClassName("MjjYud")) {
+                const firstChild = x.children.item(0);
+                if (firstChild.getAttribute("jscontroller") === "SC7lYd") {
+                    const link = firstChild.querySelector('a');
+                    urls.push(link.href)
+                    resultsArray.push(x);
+                }
             }
 
             const options = {
