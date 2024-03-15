@@ -7675,7 +7675,10 @@ const hideSearches = () => {
     const resultsStats = document.getElementById("search");
     resultsStats.insertAdjacentHTML(
         'beforebegin',
-        `<div id="extra-space-for-testing" style="width: 150px; height: 5000px;"></div>`
+        `<div id="mindfulness-loading">
+            <label class="mindfulness-loading">Loading scores...</label>
+            <div class="mindfulness-loading" style="width: 150px; height: 5000px;"></div>
+        </div>`
     );
 };
 
@@ -7878,7 +7881,7 @@ cognitoUser.authenticateUser(authDetails, {
                 }
             }
             // Remove extra space after all scores have loaded
-            document.getElementById("extra-space-for-testing").remove();
+            document.getElementById("mindfulness-loading").remove();
         };
 
     },
