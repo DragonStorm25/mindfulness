@@ -7737,6 +7737,7 @@ cognitoUser.authenticateUser(authDetails, {
                 headers: {
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${jwtToken}`,
+                    Origin: 'https://www.google.com',
                 },
             };
             const batchResponses = await fetch(
