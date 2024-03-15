@@ -263,7 +263,6 @@ cognitoUser.authenticateUser(authDetails, {
                             </div>
                             ${wrenchSvg}
                             </div>
-                            <div style="width: 150px; height: 50px;"></div>
                         </div>`
                     );
                 }
