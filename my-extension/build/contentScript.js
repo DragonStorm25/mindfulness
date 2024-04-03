@@ -7739,6 +7739,15 @@ cognitoUser.authenticateUser(authDetails, {
                 }
             }
 
+            for (const x of document.getElementsByClassName("sATSHe")) {
+                const firstChild = x.children.item(0).children.item(0);
+                if (firstChild.getAttribute("jscontroller") === "SC7lYd") {
+                    const link = firstChild.querySelector('a');
+                    urls.push(link.href)
+                    resultsArray.push(x);
+                }
+            }
+
             const options = {
                 method: 'POST',
                 headers: {
