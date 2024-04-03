@@ -182,7 +182,7 @@ cognitoUser.authenticateUser(authDetails, {
                 }
 
                 // Add click function under the click event to link
-                resultsArray[i].querySelector('a').addEventListener("click", function() {click(resultsArray[idx].querySelector('a').href, Date.now())});
+                resultsArray[i].querySelector('a').addEventListener("click", function() {click(resultsArray[i].querySelector('a').href, Date.now())});
 
                 // If score is -2, null, or NaN, the actual score couldn't be calculated for some reason; show this to the user
                 if (rawEmotionScore == -2 || emotionScore == null || emotionScore == NaN || rawEmotionScore == undefined || noResults){
