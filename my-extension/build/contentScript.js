@@ -7727,7 +7727,7 @@ cognitoUser.authenticateUser(authDetails, {
             }
         });
 
-        const getScores = async () => {
+        const getLinks = () => {
             const resultsArray = [];
             const urls = [];
             for (const x of document.getElementsByClassName("MjjYud")) {
@@ -7747,6 +7747,13 @@ cognitoUser.authenticateUser(authDetails, {
                     resultsArray.push(x);
                 }
             }
+            return {results: resultsArray, urls: urls}
+        }
+
+        const getScores = async () => {
+            const {results: resultsArray, urls} = getLinks();
+            console.log(resultsArray);
+            console.log(urls);
 
             const options = {
                 method: 'POST',
