@@ -72,7 +72,7 @@ const getSearchTerm = () => {
 }
 
 if (isGoogle){
-    hideSearches();
+    //hideSearches();
 }
 
 const USER_POOL_ID = 'us-east-1_HE1YLkYkh';
@@ -153,20 +153,21 @@ cognitoUser.authenticateUser(authDetails, {
                     }),
                 }
             ).catch(error => {console.log(error); return "Error!";});
-            let noResults;
-            let scores;
-            if (batchResponses === "Error!"){
-                noResults = true;
-            } else {
-                const jsons = await batchResponses.json();
-                console.log(Date.now() - startTime);
-                scores = jsons.body.scores;
-            }
-            for (let i = 0; i < urls.length; i++) {
+
+            const placeScore = async (index, response) => {
+                let noResults;
+                let scores;
+                if (batchResponses === "Error!"){
+                    noResults = true;
+                } else {
+                    const jsons = await response.json();
+                    console.log(Date.now() - startTime);
+                    scores = jsons.body.scores;
+                }
                 // Get raw scores (-1 to 1, can sometimes be -2 if error on Lambda side) from received jsons
-                const rawEmotionScore = noResults ? 0 : scores.emotion[i];
-                const rawActionScore = noResults ? 0 : scores.usefulness[i];
-                const rawKnowledgeScore = noResults ? 0 : scores.knowledge[i];
+                const rawEmotionScore = noResults ? 0 : scores.emotion[0];
+                const rawActionScore = noResults ? 0 : scores.usefulness[0];
+                const rawKnowledgeScore = noResults ? 0 : scores.knowledge[0];
 
                 // Convert to user-friendly scores (0 to 100)
                 const emotionScore = Number((rawEmotionScore + 1) / 2 * 100).toFixed(0);
@@ -191,11 +192,11 @@ cognitoUser.authenticateUser(authDetails, {
                 }
 
                 // Add click function under the click event to link
-                resultsArray[i].querySelector('a').addEventListener("click", function() {click(resultsArray[i].querySelector('a').href, Date.now())});
+                resultsArray[index].querySelector('a').addEventListener("click", function() {click(resultsArray[index].querySelector('a').href, Date.now())});
 
                 // If score is -2, null, or NaN, the actual score couldn't be calculated for some reason; show this to the user
                 if (rawEmotionScore == -2 || emotionScore == null || emotionScore == NaN || rawEmotionScore == undefined || noResults){
-                    resultsArray[i].insertAdjacentHTML(
+                    resultsArray[index].insertAdjacentHTML(
                         'afterend',
                         `<div>
                             <style>
@@ -209,7 +210,7 @@ cognitoUser.authenticateUser(authDetails, {
                         </div>`
                     );
                 } else { // Otherwise, show the scores to the user
-                    resultsArray[i].insertAdjacentHTML(
+                    resultsArray[index].insertAdjacentHTML(
                         'afterend',
                         `<div style="display: flex; flex-direction: column; align-items: start; gap: 0.01rem;">
                             <div style="display: flex; align-items: center; gap: 0.4rem;">
@@ -276,8 +277,24 @@ cognitoUser.authenticateUser(authDetails, {
                     );
                 }
             }
+
+            for (var i = 0; i < urls.length; i++) {
+                const response = await fetch(
+                    `https://9jokmafle1.execute-api.us-east-1.amazonaws.com/prod/sentiment-efs`,
+                    {
+                        ...options,
+                        body: JSON.stringify({
+                            links: [urls[i]],
+                            eventTime: Date.now(),
+                            device: 'desktop',
+                            userId: pluginUsername.username,
+                            searchTerm: getSearchTerm(),
+                        }),
+                    }
+                ).catch(error => {console.log(error); return "Error!";}).then(async value => {console.log(value); placeScore(i, value)});
+            }
             // Remove extra space after all scores have loaded
-            document.getElementById("mindfulness-loading").remove();
+            //document.getElementById("mindfulness-loading").remove();
         };
 
     },
