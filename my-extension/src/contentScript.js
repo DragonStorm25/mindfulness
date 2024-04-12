@@ -132,6 +132,16 @@ cognitoUser.authenticateUser(authDetails, {
                 }
             }
 
+            for (const component of resultsArray) {
+                component.insertAdjacentHTML(
+                    'beforebegin',
+                    `<div class="mindfulness-loading">
+                        <label class="mindfulness-loading">Loading scores...</label>
+                        <div class="mindfulness-loading" style="width: 150px; height: 5000px;"></div>
+                    </div>`
+                );
+            }
+
             const options = {
                 method: 'POST',
                 headers: {
@@ -193,6 +203,10 @@ cognitoUser.authenticateUser(authDetails, {
 
                 // Add click function under the click event to link
                 resultsArray[index].querySelector('a').addEventListener("click", function() {click(resultsArray[index].querySelector('a').href, Date.now())});
+
+                for (const loadingElement of resultsArray[index].getElementsByClassName('mindfulness-loading')){
+                    loadingElement.remove();
+                }
 
                 // If score is -2, null, or NaN, the actual score couldn't be calculated for some reason; show this to the user
                 if (rawEmotionScore == -2 || emotionScore == null || emotionScore == NaN || rawEmotionScore == undefined || noResults){
