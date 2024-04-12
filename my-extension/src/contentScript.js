@@ -134,7 +134,7 @@ cognitoUser.authenticateUser(authDetails, {
 
             for (const component of resultsArray) {
                 component.insertAdjacentHTML(
-                    'beforebegin',
+                    'afterend',
                     `<div class="mindfulness-loading">
                         <label class="mindfulness-loading">Loading scores...</label>
                     </div>`
