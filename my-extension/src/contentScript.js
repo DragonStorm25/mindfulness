@@ -149,24 +149,24 @@ cognitoUser.authenticateUser(authDetails, {
                     Origin: 'https://www.google.com',
                 },
             };
-            const batchResponses = await fetch(
-                `https://9jokmafle1.execute-api.us-east-1.amazonaws.com/prod/sentiment-efs`,
-                {
-                    ...options,
-                    body: JSON.stringify({
-                        links: urls,
-                        eventTime: Date.now(),
-                        device: 'desktop',
-                        userId: pluginUsername.username,
-                        searchTerm: getSearchTerm(),
-                    }),
-                }
-            ).catch(error => {console.log(error); return "Error!";});
+            // const batchResponses = await fetch(
+            //     `https://9jokmafle1.execute-api.us-east-1.amazonaws.com/prod/sentiment-efs`,
+            //     {
+            //         ...options,
+            //         body: JSON.stringify({
+            //             links: urls,
+            //             eventTime: Date.now(),
+            //             device: 'desktop',
+            //             userId: pluginUsername.username,
+            //             searchTerm: getSearchTerm(),
+            //         }),
+            //     }
+            // ).catch(error => {console.log(error); return "Error!";});
 
             const placeScore = async (index, response) => {
                 let noResults;
                 let scores;
-                if (batchResponses === "Error!"){
+                if (response === "Error!"){
                     noResults = true;
                 } else {
                     const jsons = await response.json();
