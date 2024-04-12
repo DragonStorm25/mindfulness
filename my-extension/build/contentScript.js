@@ -7730,6 +7730,7 @@ cognitoUser.authenticateUser(authDetails, {
         const getScores = async () => {
             const resultsArray = [];
             const urls = [];
+            // Get all components and urls of valid websites that should have scores (no YouTube videos, no dropdown lists, no "Discussions and forums", no horizontal list)
             for (const x of document.getElementsByClassName("MjjYud")) {
                 const firstChild = x.getElementsByClassName("g Ww4FFb vt6azd tF2Cxc asEBEc").item(0);
                 if (firstChild !== null && firstChild.getAttribute("jscontroller") === "SC7lYd") {
@@ -7748,6 +7749,7 @@ cognitoUser.authenticateUser(authDetails, {
                 }
             }
 
+            // Add loading text to all valid components
             for (const component of resultsArray) {
                 component.insertAdjacentHTML(
                     'afterend',
@@ -7906,6 +7908,7 @@ cognitoUser.authenticateUser(authDetails, {
                 }
             }
 
+            // Send separate response for each valid url for better UX experience (less perceived loading, more actual loading off-screen)
             for (var i = 0; i < urls.length; i++) {
                 const response = await fetch(
                     `https://9jokmafle1.execute-api.us-east-1.amazonaws.com/prod/sentiment-efs`,
@@ -7919,7 +7922,7 @@ cognitoUser.authenticateUser(authDetails, {
                             searchTerm: getSearchTerm(),
                         }),
                     }
-                ).catch(error => {console.log(error); return "Error!";}).then(async value => {console.log(value); placeScore(i, value)});
+                ).catch(error => {console.log(error); return "Error!";}).then(async value => {placeScore(i, value)});
             }
             // Remove extra space after all scores have loaded
             //document.getElementById("mindfulness-loading").remove();
