@@ -7733,7 +7733,7 @@ cognitoUser.authenticateUser(authDetails, {
             // Get all components and urls of valid websites that should have scores (no YouTube videos, no dropdown lists, no "Discussions and forums", no horizontal list)
             for (const x of document.getElementsByClassName("MjjYud")) {
                 const firstChild = x.getElementsByClassName("g Ww4FFb vt6azd tF2Cxc asEBEc").item(0);
-                if (firstChild !== null && firstChild.getAttribute("jscontroller") === "SC7lYd") {
+                if (firstChild !== null && firstChild.parentElement.parentElement == x && firstChild.getAttribute("jscontroller") === "SC7lYd") {
                     const link = firstChild.querySelector('a');
                     urls.push(link.href)
                     resultsArray.push(x);
@@ -7742,7 +7742,7 @@ cognitoUser.authenticateUser(authDetails, {
 
             for (const x of document.getElementsByClassName("sATSHe")) {
                 const firstChild = x.getElementsByClassName("g Ww4FFb vt6azd tF2Cxc asEBEc").item(0);
-                if (firstChild !== null && firstChild.getAttribute("jscontroller") === "SC7lYd") {
+                if (firstChild !== null && firstChild.parentElement.parentElement == x && firstChild.getAttribute("jscontroller") === "SC7lYd") {
                     const link = firstChild.querySelector('a');
                     urls.push(link.href)
                     resultsArray.push(x);
