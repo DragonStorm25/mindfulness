@@ -7753,7 +7753,6 @@ cognitoUser.authenticateUser(authDetails, {
                     'beforebegin',
                     `<div class="mindfulness-loading">
                         <label class="mindfulness-loading">Loading scores...</label>
-                        <div class="mindfulness-loading" style="width: 150px; height: 5000px;"></div>
                     </div>`
                 );
             }
