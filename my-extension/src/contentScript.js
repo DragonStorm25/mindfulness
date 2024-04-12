@@ -203,9 +203,8 @@ cognitoUser.authenticateUser(authDetails, {
                 // Add click function under the click event to link
                 resultsArray[index].querySelector('a').addEventListener("click", function() {click(resultsArray[index].querySelector('a').href, Date.now())});
 
-                for (const loadingElement of resultsArray[index].getElementsByClassName('mindfulness-loading')){
-                    loadingElement.remove();
-                }
+                const loadingElements = resultsArray[index].parentElement.getElementsByClassName('mindfulness-loading');
+                loadingElements[0].remove();
 
                 // If score is -2, null, or NaN, the actual score couldn't be calculated for some reason; show this to the user
                 if (rawEmotionScore == -2 || emotionScore == null || emotionScore == NaN || rawEmotionScore == undefined || noResults){
