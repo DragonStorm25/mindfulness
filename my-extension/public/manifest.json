@@ -13,9 +13,18 @@
     "service_worker": "background.js"
   },
   "action": {
-    "default_title": "My Extension",
-    "default_popup": "popup.html"
+    "default_title": "My Extension"
   },
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "notes.html"
+      ],
+      "matches": [
+        "https://*/*" 
+      ]
+    }
+  ],
   "permissions": [
     "storage"
   ],
