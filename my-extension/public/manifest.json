@@ -18,7 +18,7 @@
   "web_accessible_resources": [
     {
       "resources": [
-        "notes.html"
+        "visualization.html"
       ],
       "matches": [
         "https://*/*" 
