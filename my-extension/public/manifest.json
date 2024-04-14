@@ -20,9 +20,7 @@
       "resources": [
         "visualization.html"
       ],
-      "matches": [
-        "https://*/*" 
-      ]
+      "matches": []
     }
   ],
   "permissions": [
