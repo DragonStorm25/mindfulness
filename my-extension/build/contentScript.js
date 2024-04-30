@@ -7781,6 +7781,7 @@ cognitoUser.authenticateUser(authDetails, {
             //     }
             // ).catch(error => {console.log(error); return "Error!";});
 
+            const searchTime = Date.now();
             const placeScore = async (index, response) => {
                 let noResults;
                 let scores;
@@ -7819,7 +7820,7 @@ cognitoUser.authenticateUser(authDetails, {
                 }
 
                 // Add click function under the click event to link
-                resultsArray[index].querySelector('a').addEventListener("click", function() {click(resultsArray[index].querySelector('a').href, Date.now())});
+                resultsArray[index].querySelector('a').addEventListener("click", function() {click(resultsArray[index].querySelector('a').href, searchTime)});
 
                 const loadingElements = resultsArray[index].parentElement.getElementsByClassName('mindfulness-loading');
                 loadingElements[0].remove();
@@ -7916,7 +7917,7 @@ cognitoUser.authenticateUser(authDetails, {
                         ...options,
                         body: JSON.stringify({
                             links: [urls[i]],
-                            eventTime: Date.now(),
+                            eventTime: searchTime,
                             device: 'desktop',
                             userId: pluginUsername.username,
                             searchTerm: getSearchTerm(),
