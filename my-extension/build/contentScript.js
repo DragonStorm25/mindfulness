@@ -7789,7 +7789,7 @@ cognitoUser.authenticateUser(authDetails, {
                     noResults = true;
                 } else {
                     const jsons = await response.json();
-                    console.log(Date.now() - startTime);
+                    // console.log(Date.now() - startTime);
                     scores = jsons.body.scores;
                 }
                 // Get raw scores (-1 to 1, can sometimes be -2 if error on Lambda side) from received jsons
@@ -7814,6 +7814,7 @@ cognitoUser.authenticateUser(authDetails, {
                                 device: 'desktop',
                                 clickedUrl: clickedUrl,
                                 userId: pluginUsername.username,
+                                searchTerm: getSearchTerm(),
                             }),
                         }
                     )
