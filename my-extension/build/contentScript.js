@@ -7727,7 +7727,7 @@ cognitoUser.authenticateUser(authDetails, {
             }
         });
 
-        const getScores = async () => {
+        const getLinks = () => {
             const resultsArray = [];
             const urls = [];
             // Get all components and urls of valid websites that should have scores (no YouTube videos, no dropdown lists, no "Discussions and forums", no horizontal list)
@@ -7758,6 +7758,13 @@ cognitoUser.authenticateUser(authDetails, {
                     </div>`
                 );
             }
+            return {results: resultsArray, urls: urls}
+        }
+
+        const getScores = async () => {
+            const {results: resultsArray, urls} = getLinks();
+            console.log(resultsArray);
+            console.log(urls);
 
             const options = {
                 method: 'POST',
