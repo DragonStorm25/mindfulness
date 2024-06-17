@@ -135,7 +135,7 @@ cognitoUser.authenticateUser(authDetails, {
             }
 
             const searchTime = Date.now();
-            const placeScore = async (index: number, response: "Error!" | Response) => {
+            async function placeScore (index: number, response: "Error!" | Response) {
                 let noResults;
                 let scores;
                 if (response === "Error!"){
@@ -156,7 +156,7 @@ cognitoUser.authenticateUser(authDetails, {
                 const knowledgeScore = convertScore(rawKnowledgeScore);
 
                 // Create click function to add to all links which sends data about the clicked link to database
-                const click = (clickedUrl: string, time: number) => {
+                function click (clickedUrl: string, time: number) {
                     fetch(
                         `https://9jokmafle1.execute-api.us-east-1.amazonaws.com/prod/sentiment-efs`,
                         {
