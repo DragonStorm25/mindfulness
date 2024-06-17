@@ -137,7 +137,7 @@ cognitoUser.authenticateUser(authDetails, {
                     Origin: 'https://www.google.com',
                 },
             };
-            const batchResponses = await fetch(
+            const batchResponses: "Error!" | Response = await fetch(
                 `https://9jokmafle1.execute-api.us-east-1.amazonaws.com/prod/sentiment-efs`,
                 {
                     ...options,
@@ -155,7 +155,7 @@ cognitoUser.authenticateUser(authDetails, {
             if (batchResponses === "Error!"){
                 noResults = true;
             } else {
-                const jsons = JSON.parse(batchResponses.toString());
+                const jsons = await batchResponses.json();
                 console.log(Date.now() - startTime);
                 scores = jsons.body.scores;
             }
