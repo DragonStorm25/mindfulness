@@ -152,7 +152,7 @@ cognitoUser.authenticateUser(authDetails, {
                 const rawKnowledgeScore: number = noResults ? 0 : scores.knowledge[0];
 
                 // Convert to user-friendly scores (0 to 100)
-                const emotionScore = convertScore(rawActionScore);
+                const emotionScore = convertScore(rawEmotionScore);
                 const actionScore = convertScore(rawActionScore);
                 const knowledgeScore = convertScore(rawKnowledgeScore);
 
@@ -271,6 +271,7 @@ cognitoUser.authenticateUser(authDetails, {
 
             // Send separate response for each valid url for better UX experience (less perceived loading, more actual loading off-screen)
             for (var i = 0; i < urls.length; i++) {
+                const x = i;
                 const response: Promise<"Error!" | Response> = fetch(
                     `https://9jokmafle1.execute-api.us-east-1.amazonaws.com/prod/sentiment-efs`,
                     {
@@ -284,7 +285,7 @@ cognitoUser.authenticateUser(authDetails, {
                         }),
                     }
                 ).catch(error => {console.log(error); return "Error!";})
-                response.then(async value => {placeScore(i, value)});
+                response.then(async value => {placeScore(x, value)});
             }
         };
 
