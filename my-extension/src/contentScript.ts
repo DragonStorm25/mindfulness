@@ -62,3 +62,228 @@ const getSearchTerm = () => {
 if (isGoogle){
     hideSearches();
 }
+
+const USER_POOL_ID = 'us-east-1_HE1YLkYkh';
+const CLIENT_ID = 'bph80t0c4clmadl6249fpv8p9';
+
+const poolData = {
+    UserPoolId: USER_POOL_ID,
+    ClientId: CLIENT_ID,
+};
+const cognitoPool = new CognitoUserPool(poolData);
+
+const authDetails = new AuthenticationDetails({
+    Username: 'test11111',
+    Password: 'Test12345!',
+});
+const userData = {
+    Username: 'test11111',
+    Pool: cognitoPool,
+};
+const cognitoUser = new CognitoUser(userData);
+cognitoUser.authenticateUser(authDetails, {
+    onSuccess: function (result) {
+        const accessToken = result.getAccessToken();
+        const jwtToken = accessToken.getJwtToken();
+        const expires = accessToken.getExpiration();
+        const username = accessToken.payload.username;
+        const userEmail = result.getIdToken().payload.email;
+        const sub = result.getIdToken().payload.sub;
+
+        // Get username from Chrome storage and get scores from websites
+        let pluginUsername = { username: 'Username' };
+        chrome.storage.sync.get("username", function (obj) {
+            pluginUsername.username = obj.username;
+            if (isGoogle) {
+                getScores();
+            }
+        });
+
+        const getLinks = () => {
+            const resultsArray = [];
+            const urls = [];
+            for (const x of document.getElementsByClassName("MjjYud")) {
+                const firstChild = x.getElementsByClassName("g Ww4FFb vt6azd tF2Cxc asEBEc").item(0);
+                if (firstChild !== null && firstChild.getAttribute("jscontroller") === "SC7lYd") {
+                    const link = firstChild.querySelector('a');
+                    if (link)
+                        urls.push(link.href)
+                    resultsArray.push(x);
+                }
+            }
+
+            for (const x of document.getElementsByClassName("sATSHe")) {
+                const firstChild = x.getElementsByClassName("g Ww4FFb vt6azd tF2Cxc asEBEc").item(0);
+                if (firstChild !== null && firstChild.getAttribute("jscontroller") === "SC7lYd") {
+                    const link = firstChild.querySelector('a');
+                    if (link)
+                        urls.push(link.href)
+                    resultsArray.push(x);
+                }
+            }
+            return {results: resultsArray, urls: urls}
+        }
+
+        const getScores = async () => {
+            const {results: resultsArray, urls} = getLinks();
+            console.log(resultsArray);
+            console.log(urls);
+
+            const options = {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${jwtToken}`,
+                    Origin: 'https://www.google.com',
+                },
+            };
+            const batchResponses = await fetch(
+                `https://9jokmafle1.execute-api.us-east-1.amazonaws.com/prod/sentiment-efs`,
+                {
+                    ...options,
+                    body: JSON.stringify({
+                        links: urls,
+                        eventTime: Date.now(),
+                        device: 'desktop',
+                        userId: pluginUsername.username,
+                        searchTerm: getSearchTerm(),
+                    }),
+                }
+            ).catch(error => {console.log(error); return "Error!";});
+            let noResults;
+            let scores;
+            if (batchResponses === "Error!"){
+                noResults = true;
+            } else {
+                const jsons = JSON.parse(batchResponses.toString());
+                console.log(Date.now() - startTime);
+                scores = jsons.body.scores;
+            }
+            for (let i = 0; i < urls.length; i++) {
+                // Get raw scores (-1 to 1, can sometimes be -2 if error on Lambda side) from received jsons
+                const rawEmotionScore = noResults ? 0 : scores.emotion[i];
+                const rawActionScore = noResults ? 0 : scores.usefulness[i];
+                const rawKnowledgeScore = noResults ? 0 : scores.knowledge[i];
+
+                // Convert to user-friendly scores (0 to 100)
+                const emotionScore = Number((rawEmotionScore + 1) / 2 * 100).toFixed(0);
+                const actionScore = Number((rawActionScore + 1) / 2 * 100).toFixed(0);
+                const knowledgeScore = Number((rawKnowledgeScore + 1) / 2 * 100).toFixed(0);
+
+                // Create click function to add to all links which sends data about the clicked link to database
+                const click = (clickedUrl: string, time: number) => {
+                    fetch(
+                        `https://9jokmafle1.execute-api.us-east-1.amazonaws.com/prod/sentiment-efs`,
+                        {
+                            ...options,
+                            body: JSON.stringify({
+                                links: [],
+                                eventTime: time,
+                                device: 'desktop',
+                                clickedUrl: clickedUrl,
+                                userId: pluginUsername.username,
+                            }),
+                        }
+                    )
+                }
+
+                // Add click function under the click event to link
+                const link = resultsArray[i].querySelector('a');
+                if (link)
+                    link.addEventListener("click", function() {click(link.href, Date.now())});
+
+                // If score is -2, null, or NaN, the actual score couldn't be calculated for some reason; show this to the user
+                if (rawEmotionScore == -2 || (!emotionScore) || noResults){
+                    resultsArray[i].insertAdjacentHTML(
+                        'afterend',
+                        `<div>
+                            <style>
+                            #no-score-text {
+                                font-weight: bold;
+                                width: 350px;
+                            }
+                            </style>
+                            <label id="no-score-text">No scores available</label>
+                            <div style="width: 350px; height: 50px;"></div>
+                        </div>`
+                    );
+                } else { // Otherwise, show the scores to the user
+                    resultsArray[i].insertAdjacentHTML(
+                        'afterend',
+                        `<div style="display: flex; flex-direction: column; align-items: start; gap: 0.01rem;">
+                            <div style="display: flex; align-items: center; gap: 0.4rem;">
+                            <style>
+                                label {
+                                    display: block;
+                                    width: 150px;
+                                }
+
+                                label .tooltiptext {
+                                    visibility: hidden;
+                                    background-color: black;
+                                    text-align: center;
+                                    padding: 5px 10px;
+                                    border-radius: 6px;
+                                    
+                                    /* Position the tooltip text - see examples below! */
+                                    position: absolute;
+                                    z-index: 1;
+                                }
+
+                                label:hover .tooltiptext {
+                                    visibility: visible;
+                                }
+                            </style>
+                            <label for="emotion">Emotion 
+                                <span style="float:right;">${emotionScore}</span>
+                                <span class="tooltiptext">This value indicates the emotional tone of the webpage</span>
+                            </label>
+                            ${frownSvg}
+                            <div style="width:100px;height:16px;background-color: #dedede;border-radius:4px;">
+                                <div style="width:${emotionScore
+                                    }%;height:100%;background-color: #f1c40f;border-radius:4px;"></div>
+                            </div>
+                            ${smileSvg}
+                            </div>
+                            
+                            <div style="display: flex; align-items: center; gap: 0.4rem;">
+                            <label for="knowledge">Knowledge 
+                                <span style="float:right;">${knowledgeScore}</span>
+                                <span class="tooltiptext">This value indicates whether the informatioin on the webpage is likely to increase your understanding of its topic</span>
+                            </label>
+                            ${stupidBrainSvg}
+                            <div style="width:100px;height:16px;background-color: #dedede;border-radius:4px;">
+                                <div style="width:${knowledgeScore
+                                    }%;height:100%;background-color: #0D5FCE;border-radius:4px;"></div>
+                            </div>
+                            ${brainSvg}
+                            </div>
+                            
+                            <div style="display: flex; align-items: center; gap: 0.4rem;">
+                            <label for="action">Actionability 
+                                <span style="float:right;">${actionScore}</span>
+                                <span class="tooltiptext">This value indicates whether the information on the webpage is likely to help guide your actions and/or decisions</span>
+                            </label>
+                            ${brokenWrenchSvg}
+                            <div style="width:100px;height:16px;background-color: #dedede;border-radius:4px;">
+                                <div style="width:${actionScore
+                                    }%;height:100%;background-color: #2CE93F;border-radius:4px;"></div>
+                            </div>
+                            ${wrenchSvg}
+                            </div>
+                        </div>`
+                    );
+                }
+            }
+            // Remove extra space after all scores have loaded
+            const loadingElement = document.getElementById("mindfulness-loading");
+            if (loadingElement)
+                loadingElement.remove();
+        };
+
+    },
+
+    onFailure: function (err) {
+        console.log(err);
+    },
+});
