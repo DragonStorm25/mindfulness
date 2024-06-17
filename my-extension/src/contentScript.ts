@@ -52,15 +52,40 @@ const hideSearches = () => {
         );
 };
 
-const getSearchTerm = () => {
+function getSearchTerm (): string {
     const searchTerm = document.getElementById("APjFqb");
     if (searchTerm)
-        return searchTerm.textContent;
+        return searchTerm.textContent ?? "";
     return "";
 }
 
 if (isGoogle){
     hideSearches();
+}
+
+function getLinks(): {results: Element[], urls: string[]} {
+    const resultsArray: Element[] = [];
+    const urls: string[] = [];
+    for (const x of document.getElementsByClassName("MjjYud")) {
+        const firstChild = x.getElementsByClassName("g Ww4FFb vt6azd tF2Cxc asEBEc").item(0);
+        if (firstChild && firstChild.getAttribute("jscontroller") === "SC7lYd") {
+            const link = firstChild.querySelector('a');
+            if (link)
+                urls.push(link.href)
+            resultsArray.push(x);
+        }
+    }
+
+    for (const x of document.getElementsByClassName("sATSHe")) {
+        const firstChild = x.getElementsByClassName("g Ww4FFb vt6azd tF2Cxc asEBEc").item(0);
+        if (firstChild && firstChild.getAttribute("jscontroller") === "SC7lYd") {
+            const link = firstChild.querySelector('a');
+            if (link)
+                urls.push(link.href)
+            resultsArray.push(x);
+        }
+    }
+    return {results: resultsArray, urls: urls}
 }
 
 const USER_POOL_ID = 'us-east-1_HE1YLkYkh';
@@ -101,35 +126,8 @@ cognitoUser.authenticateUser(authDetails, {
             }
         });
 
-        function getLinks(): {results: Element[], urls: string[]} {
-            const resultsArray: Element[] = [];
-            const urls: string[] = [];
-            for (const x of document.getElementsByClassName("MjjYud")) {
-                const firstChild = x.getElementsByClassName("g Ww4FFb vt6azd tF2Cxc asEBEc").item(0);
-                if (firstChild && firstChild.getAttribute("jscontroller") === "SC7lYd") {
-                    const link = firstChild.querySelector('a');
-                    if (link)
-                        urls.push(link.href)
-                    resultsArray.push(x);
-                }
-            }
-
-            for (const x of document.getElementsByClassName("sATSHe")) {
-                const firstChild = x.getElementsByClassName("g Ww4FFb vt6azd tF2Cxc asEBEc").item(0);
-                if (firstChild && firstChild.getAttribute("jscontroller") === "SC7lYd") {
-                    const link = firstChild.querySelector('a');
-                    if (link)
-                        urls.push(link.href)
-                    resultsArray.push(x);
-                }
-            }
-            return {results: resultsArray, urls: urls}
-        }
-
-        const getScores = async () => {
+        async function getScores () {
             const {results: resultsArray, urls} = getLinks();
-            console.log(resultsArray);
-            console.log(urls);
 
             const options = {
                 method: 'POST',
@@ -139,6 +137,7 @@ cognitoUser.authenticateUser(authDetails, {
                     Origin: 'https://www.google.com',
                 },
             };
+
             const batchResponses: "Error!" | Response = await fetch(
                 `https://9jokmafle1.execute-api.us-east-1.amazonaws.com/prod/sentiment-efs`,
                 {
@@ -152,6 +151,7 @@ cognitoUser.authenticateUser(authDetails, {
                     }),
                 }
             ).catch(error => {console.log(error); return "Error!";});
+
             let noResults;
             let scores;
             if (batchResponses === "Error!"){
@@ -161,6 +161,7 @@ cognitoUser.authenticateUser(authDetails, {
                 console.log(Date.now() - startTime);
                 scores = jsons.body.scores;
             }
+
             for (let i = 0; i < urls.length; i++) {
                 // Get raw scores (-1 to 1, can sometimes be -2 if error on Lambda side) from received jsons
                 const rawEmotionScore = noResults ? 0 : scores.emotion[i];
@@ -168,9 +169,9 @@ cognitoUser.authenticateUser(authDetails, {
                 const rawKnowledgeScore = noResults ? 0 : scores.knowledge[i];
 
                 // Convert to user-friendly scores (0 to 100)
-                const emotionScore = Number((rawEmotionScore + 1) / 2 * 100).toFixed(0);
-                const actionScore = Number((rawActionScore + 1) / 2 * 100).toFixed(0);
-                const knowledgeScore = Number((rawKnowledgeScore + 1) / 2 * 100).toFixed(0);
+                const emotionScore = ((rawEmotionScore + 1) / 2 * 100).toFixed(0);
+                const actionScore = ((rawActionScore + 1) / 2 * 100).toFixed(0);
+                const knowledgeScore = ((rawKnowledgeScore + 1) / 2 * 100).toFixed(0);
 
                 // Create click function to add to all links which sends data about the clicked link to database
                 const click = (clickedUrl: string, time: number) => {
