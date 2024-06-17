@@ -39,28 +39,12 @@ const brokenWrenchSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="-12.73
 const isGoogle = window.location.href.indexOf("www.google.com") != -1;
 
 const startTime = Date.now();
-// Add extra space before scores have loaded to prevent bias
-const hideSearches = () => {
-    const resultsStats = document.getElementById("search");
-    if (resultsStats)
-        resultsStats.insertAdjacentHTML(
-            'beforebegin',
-            `<div id="mindfulness-loading">
-                <label class="mindfulness-loading">Loading scores...</label>
-                <div class="mindfulness-loading" style="width: 150px; height: 5000px;"></div>
-            </div>`
-        );
-};
 
 function getSearchTerm (): string {
     const searchTerm = document.getElementById("APjFqb");
     if (searchTerm)
         return searchTerm.textContent ?? "";
     return "";
-}
-
-if (isGoogle){
-    hideSearches();
 }
 
 function getLinks(): {results: Element[], urls: string[]} {
@@ -142,34 +126,30 @@ cognitoUser.authenticateUser(authDetails, {
                 },
             };
 
-            const batchResponses: "Error!" | Response = await fetch(
-                `https://9jokmafle1.execute-api.us-east-1.amazonaws.com/prod/sentiment-efs`,
-                {
-                    ...options,
-                    body: JSON.stringify({
-                        links: urls,
-                        eventTime: Date.now(),
-                        device: 'desktop',
-                        userId: pluginUsername.username,
-                        searchTerm: getSearchTerm(),
-                    }),
-                }
-            ).catch(error => {console.log(error); return "Error!";});
-            let noResults;
-            let scores;
-            if (batchResponses === "Error!"){
-                noResults = true;
-            } else {
-                const jsons = await batchResponses.json();
-                console.log(Date.now() - startTime);
-                scores = jsons.body.scores;
+            for (var i = 0; i < resultsArray.length; i++) {
+                resultsArray[i].insertAdjacentHTML(
+                    'afterend',
+                    `<div class="mindfulness-loading">
+                        <label class="mindfulness-loading-text">Loading scores...</label>
+                    </div>`
+                );
             }
 
-            for (let i = 0; i < urls.length; i++) {
+            const searchTime = Date.now();
+            const placeScore = async (index: number, response: "Error!" | Response) => {
+                let noResults;
+                let scores;
+                if (response === "Error!"){
+                    noResults = true;
+                } else {
+                    const jsons = await response.json();
+                    // console.log(Date.now() - startTime);
+                    scores = jsons.body.scores;
+                }
                 // Get raw scores (-1 to 1, can sometimes be -2 if error on Lambda side) from received jsons
-                const rawEmotionScore: number = noResults ? 0 : scores.emotion[i];
-                const rawActionScore: number = noResults ? 0 : scores.usefulness[i];
-                const rawKnowledgeScore: number = noResults ? 0 : scores.knowledge[i];
+                const rawEmotionScore: number = noResults ? 0 : scores.emotion[0];
+                const rawActionScore: number = noResults ? 0 : scores.usefulness[0];
+                const rawKnowledgeScore: number = noResults ? 0 : scores.knowledge[0];
 
                 // Convert to user-friendly scores (0 to 100)
                 const emotionScore = convertScore(rawActionScore);
@@ -188,19 +168,26 @@ cognitoUser.authenticateUser(authDetails, {
                                 device: 'desktop',
                                 clickedUrl: clickedUrl,
                                 userId: pluginUsername.username,
+                                searchTerm: getSearchTerm(),
                             }),
                         }
                     )
                 }
 
                 // Add click function under the click event to link
-                const link = resultsArray[i].querySelector('a');
+                const link = resultsArray[index].querySelector('a');
                 if (link)
-                    link.addEventListener("click", function() {click(link.href, Date.now())});
+                    link.addEventListener("click", function() {click(link.href, searchTime)});
+
+                const parentLoadingElement = resultsArray[index].parentElement;
+                if (parentLoadingElement) {
+                    const loadingElements = parentLoadingElement.getElementsByClassName('mindfulness-loading');
+                    loadingElements[0].remove();
+                }
 
                 // If score is -2, null, or NaN, the actual score couldn't be calculated for some reason; show this to the user
-                if (rawEmotionScore == -2 || (!emotionScore) || noResults){
-                    resultsArray[i].insertAdjacentHTML(
+                if (rawEmotionScore == -2 || (!rawEmotionScore) || noResults){
+                    resultsArray[index].insertAdjacentHTML(
                         'afterend',
                         `<div>
                             <style>
@@ -214,7 +201,7 @@ cognitoUser.authenticateUser(authDetails, {
                         </div>`
                     );
                 } else { // Otherwise, show the scores to the user
-                    resultsArray[i].insertAdjacentHTML(
+                    resultsArray[index].insertAdjacentHTML(
                         'afterend',
                         `<div style="display: flex; flex-direction: column; align-items: start; gap: 0.01rem;">
                             <div style="display: flex; align-items: center; gap: 0.4rem;">
@@ -281,10 +268,24 @@ cognitoUser.authenticateUser(authDetails, {
                     );
                 }
             }
-            // Remove extra space after all scores have loaded
-            const loadingElement = document.getElementById("mindfulness-loading");
-            if (loadingElement)
-                loadingElement.remove();
+
+            // Send separate response for each valid url for better UX experience (less perceived loading, more actual loading off-screen)
+            for (var i = 0; i < urls.length; i++) {
+                const response: Promise<"Error!" | Response> = fetch(
+                    `https://9jokmafle1.execute-api.us-east-1.amazonaws.com/prod/sentiment-efs`,
+                    {
+                        ...options,
+                        body: JSON.stringify({
+                            links: [urls[i]],
+                            eventTime: searchTime,
+                            device: 'desktop',
+                            userId: pluginUsername.username,
+                            searchTerm: getSearchTerm(),
+                        }),
+                    }
+                ).catch(error => {console.log(error); return "Error!";})
+                response.then(async value => {placeScore(i, value)});
+            }
         };
 
     },
