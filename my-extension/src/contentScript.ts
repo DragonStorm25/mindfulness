@@ -88,6 +88,10 @@ function getLinks(): {results: Element[], urls: string[]} {
     return {results: resultsArray, urls: urls}
 }
 
+function convertScore(score: number): string {
+    return ((score + 1) / 2 * 100).toFixed(0);
+}
+
 const USER_POOL_ID = 'us-east-1_HE1YLkYkh';
 const CLIENT_ID = 'bph80t0c4clmadl6249fpv8p9';
 
@@ -169,9 +173,9 @@ cognitoUser.authenticateUser(authDetails, {
                 const rawKnowledgeScore = noResults ? 0 : scores.knowledge[i];
 
                 // Convert to user-friendly scores (0 to 100)
-                const emotionScore = ((rawEmotionScore + 1) / 2 * 100).toFixed(0);
-                const actionScore = ((rawActionScore + 1) / 2 * 100).toFixed(0);
-                const knowledgeScore = ((rawKnowledgeScore + 1) / 2 * 100).toFixed(0);
+                const emotionScore = convertScore(rawActionScore);
+                const actionScore = convertScore(rawActionScore);
+                const knowledgeScore = convertScore(rawKnowledgeScore);
 
                 // Create click function to add to all links which sends data about the clicked link to database
                 const click = (clickedUrl: string, time: number) => {
