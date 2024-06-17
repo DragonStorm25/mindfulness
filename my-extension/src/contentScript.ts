@@ -126,13 +126,12 @@ cognitoUser.authenticateUser(authDetails, {
                 },
             };
 
-            for (var i = 0; i < resultsArray.length; i++) {
-                resultsArray[i].insertAdjacentHTML(
-                    'afterend',
+            for (const component of resultsArray) {
+                component.insertAdjacentHTML(
+                    'beforeend',
                     `<div class="mindfulness-loading">
-                        <label class="mindfulness-loading-text">Loading scores...</label>
-                    </div>`
-                );
+                        <label>Loading scores...</label>
+                    </div>`)
             }
 
             const searchTime = Date.now();
@@ -179,11 +178,8 @@ cognitoUser.authenticateUser(authDetails, {
                 if (link)
                     link.addEventListener("click", function() {click(link.href, searchTime)});
 
-                const parentLoadingElement = resultsArray[index].parentElement;
-                if (parentLoadingElement) {
-                    const loadingElements = parentLoadingElement.getElementsByClassName('mindfulness-loading');
-                    loadingElements[0].remove();
-                }
+                const loadingElements = resultsArray[index].getElementsByClassName('mindfulness-loading');
+                loadingElements[0].remove();
 
                 // If score is -2, null, or NaN, the actual score couldn't be calculated for some reason; show this to the user
                 if (rawEmotionScore == -2 || (!rawEmotionScore) || noResults){
