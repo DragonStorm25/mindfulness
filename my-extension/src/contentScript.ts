@@ -40,7 +40,7 @@ const isGoogle = window.location.href.indexOf("www.google.com") != -1;
 
 const startTime = Date.now();
 // Add extra space before scores have loaded to prevent bias
-const hideSearches = () => {
+function hideSearches () {
     const resultsStats = document.getElementById("search");
     if (resultsStats)
         resultsStats.insertAdjacentHTML(
@@ -177,7 +177,7 @@ cognitoUser.authenticateUser(authDetails, {
                 const knowledgeScore = convertScore(rawKnowledgeScore);
 
                 // Create click function to add to all links which sends data about the clicked link to database
-                const click = (clickedUrl: string, time: number) => {
+                function click (clickedUrl: string, time: number) {
                     fetch(
                         `https://9jokmafle1.execute-api.us-east-1.amazonaws.com/prod/sentiment-efs`,
                         {
