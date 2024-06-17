@@ -76,10 +76,12 @@ const authDetails = new AuthenticationDetails({
     Username: 'test11111',
     Password: 'Test12345!',
 });
+
 const userData = {
     Username: 'test11111',
     Pool: cognitoPool,
 };
+
 const cognitoUser = new CognitoUser(userData);
 cognitoUser.authenticateUser(authDetails, {
     onSuccess: function (result) {
@@ -99,12 +101,12 @@ cognitoUser.authenticateUser(authDetails, {
             }
         });
 
-        const getLinks = () => {
-            const resultsArray = [];
-            const urls = [];
+        function getLinks(): {results: Element[], urls: string[]} {
+            const resultsArray: Element[] = [];
+            const urls: string[] = [];
             for (const x of document.getElementsByClassName("MjjYud")) {
                 const firstChild = x.getElementsByClassName("g Ww4FFb vt6azd tF2Cxc asEBEc").item(0);
-                if (firstChild !== null && firstChild.getAttribute("jscontroller") === "SC7lYd") {
+                if (firstChild && firstChild.getAttribute("jscontroller") === "SC7lYd") {
                     const link = firstChild.querySelector('a');
                     if (link)
                         urls.push(link.href)
@@ -114,7 +116,7 @@ cognitoUser.authenticateUser(authDetails, {
 
             for (const x of document.getElementsByClassName("sATSHe")) {
                 const firstChild = x.getElementsByClassName("g Ww4FFb vt6azd tF2Cxc asEBEc").item(0);
-                if (firstChild !== null && firstChild.getAttribute("jscontroller") === "SC7lYd") {
+                if (firstChild && firstChild.getAttribute("jscontroller") === "SC7lYd") {
                     const link = firstChild.querySelector('a');
                     if (link)
                         urls.push(link.href)
