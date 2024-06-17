@@ -168,9 +168,9 @@ cognitoUser.authenticateUser(authDetails, {
 
             for (let i = 0; i < urls.length; i++) {
                 // Get raw scores (-1 to 1, can sometimes be -2 if error on Lambda side) from received jsons
-                const rawEmotionScore = noResults ? 0 : scores.emotion[i];
-                const rawActionScore = noResults ? 0 : scores.usefulness[i];
-                const rawKnowledgeScore = noResults ? 0 : scores.knowledge[i];
+                const rawEmotionScore: number = noResults ? 0 : scores.emotion[i];
+                const rawActionScore: number = noResults ? 0 : scores.usefulness[i];
+                const rawKnowledgeScore: number = noResults ? 0 : scores.knowledge[i];
 
                 // Convert to user-friendly scores (0 to 100)
                 const emotionScore = convertScore(rawActionScore);
