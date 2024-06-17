@@ -172,7 +172,7 @@ cognitoUser.authenticateUser(authDetails, {
                 const rawKnowledgeScore: number = noResults ? 0 : scores.knowledge[i];
 
                 // Convert to user-friendly scores (0 to 100)
-                const emotionScore = convertScore(rawActionScore);
+                const emotionScore = convertScore(rawEmotionScore);
                 const actionScore = convertScore(rawActionScore);
                 const knowledgeScore = convertScore(rawKnowledgeScore);
 
