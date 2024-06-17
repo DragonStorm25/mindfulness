@@ -155,7 +155,6 @@ cognitoUser.authenticateUser(authDetails, {
                     }),
                 }
             ).catch(error => {console.log(error); return "Error!";});
-
             let noResults;
             let scores;
             if (batchResponses === "Error!"){

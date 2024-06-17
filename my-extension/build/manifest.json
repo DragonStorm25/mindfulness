@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Mindfulness Plugin",
-  "version": "0.3.7",
+  "version": "0.4",
   "description": "A plugin to provide stats (emotion, knowledge, and actionability) to the user to promote mindfulness and disincentivize doomscrolling",
   "icons": {
     "16": "icons/icon_16.png",

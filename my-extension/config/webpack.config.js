@@ -7,7 +7,7 @@ module.exports = {
       contentScript: path.resolve(__dirname, "..", "src", "contentScript.ts")
    },
    output: {
-      path: path.join(__dirname, "../dist"),
+      path: path.join(__dirname, "../build"),
       filename: "[name].js",
    },
    resolve: {
