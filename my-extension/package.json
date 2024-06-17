@@ -17,11 +17,18 @@
     "file-loader": "^6.2.0",
     "mini-css-extract-plugin": "^2.7.5",
     "prettier": "^2.8.7",
-    "webpack": "^5.88.1",
+    "webpack": "^5.92.0",
     "webpack-cli": "^4.10.0",
     "webpack-merge": "^5.8.0"
   },
   "dependencies": {
-    "amazon-cognito-identity-js": "^6.2.0"
-  }
+    "@types/chrome": "^0.0.268",
+    "amazon-cognito-identity-js": "^6.2.0",
+    "ts-loader": "^9.5.1",
+    "typescript": "^5.4.5"
+  },
+  "main": "pack.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
 }

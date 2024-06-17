@@ -1,19 +1,29 @@
-'use strict';
-
-const { merge } = require('webpack-merge');
-
-const common = require('./webpack.common.js');
-const PATHS = require('./paths');
-
-// Merge webpack configuration files
-const config = (env, argv) =>
-  merge(common, {
-    entry: {
-      popup: PATHS.src + '/popup.js',
-      contentScript: PATHS.src + '/contentScript.js',
-      background: PATHS.src + '/background.js',
-    },
-    devtool: argv.mode === 'production' ? false : 'source-map',
-  });
-
-module.exports = config;
+const path = require('path');
+const CopyPlugin = require('copy-webpack-plugin');
+module.exports = {
+   mode: "production",
+   entry: {
+      background: path.resolve(__dirname, "..", "src", "background.ts"),
+   },
+   output: {
+      path: path.join(__dirname, "../dist"),
+      filename: "[name].js",
+   },
+   resolve: {
+      extensions: [".ts", ".js"],
+   },
+   module: {
+      rules: [
+         {
+            test: /\.tsx?$/,
+            loader: "ts-loader",
+            exclude: /node_modules/,
+         },
+      ],
+   },
+   plugins: [
+      new CopyPlugin({
+         patterns: [{from: ".", to: ".", context: "public"}]
+      }),
+   ],
+};
