@@ -7688,7 +7688,7 @@ const getSearchTerm = () => {
 }
 
 if (isGoogle){
-    hideSearches();
+    //hideSearches();
 }
 
 const USER_POOL_ID = 'us-east-1_HE1YLkYkh';
@@ -7730,9 +7730,10 @@ cognitoUser.authenticateUser(authDetails, {
         const getLinks = () => {
             const resultsArray = [];
             const urls = [];
+            // Get all components and urls of valid websites that should have scores (no YouTube videos, no dropdown lists, no "Discussions and forums", no horizontal list)
             for (const x of document.getElementsByClassName("MjjYud")) {
                 const firstChild = x.getElementsByClassName("g Ww4FFb vt6azd tF2Cxc asEBEc").item(0);
-                if (firstChild !== null && firstChild.getAttribute("jscontroller") === "SC7lYd") {
+                if (firstChild !== null && firstChild.parentElement == x && firstChild.getAttribute("jscontroller") === "SC7lYd") {
                     const link = firstChild.querySelector('a');
                     urls.push(link.href)
                     resultsArray.push(x);
@@ -7741,11 +7742,28 @@ cognitoUser.authenticateUser(authDetails, {
 
             for (const x of document.getElementsByClassName("sATSHe")) {
                 const firstChild = x.getElementsByClassName("g Ww4FFb vt6azd tF2Cxc asEBEc").item(0);
-                if (firstChild !== null && firstChild.getAttribute("jscontroller") === "SC7lYd") {
+                if (firstChild !== null && firstChild.parentElement == x && firstChild.getAttribute("jscontroller") === "SC7lYd") {
                     const link = firstChild.querySelector('a');
                     urls.push(link.href)
                     resultsArray.push(x);
                 }
+            }
+            return {results: resultsArray, urls: urls}
+        }
+
+        const getScores = async () => {
+            const {results: resultsArray, urls} = getLinks();
+            console.log(resultsArray);
+            console.log(urls);
+
+            // Add loading text to all valid components
+            for (const component of resultsArray) {
+                component.insertAdjacentHTML(
+                    'afterend',
+                    `<div class="mindfulness-loading">
+                        <label class="mindfulness-loading">Loading scores...</label>
+                    </div>`
+                );
             }
             return {results: resultsArray, urls: urls}
         }
@@ -7763,33 +7781,35 @@ cognitoUser.authenticateUser(authDetails, {
                     Origin: 'https://www.google.com',
                 },
             };
-            const batchResponses = await fetch(
-                `https://9jokmafle1.execute-api.us-east-1.amazonaws.com/prod/sentiment-efs`,
-                {
-                    ...options,
-                    body: JSON.stringify({
-                        links: urls,
-                        eventTime: Date.now(),
-                        device: 'desktop',
-                        userId: pluginUsername.username,
-                        searchTerm: getSearchTerm(),
-                    }),
+            // const batchResponses = await fetch(
+            //     `https://9jokmafle1.execute-api.us-east-1.amazonaws.com/prod/sentiment-efs`,
+            //     {
+            //         ...options,
+            //         body: JSON.stringify({
+            //             links: urls,
+            //             eventTime: Date.now(),
+            //             device: 'desktop',
+            //             userId: pluginUsername.username,
+            //             searchTerm: getSearchTerm(),
+            //         }),
+            //     }
+            // ).catch(error => {console.log(error); return "Error!";});
+
+            const searchTime = Date.now();
+            const placeScore = async (index, response) => {
+                let noResults;
+                let scores;
+                if (response === "Error!"){
+                    noResults = true;
+                } else {
+                    const jsons = await response.json();
+                    // console.log(Date.now() - startTime);
+                    scores = jsons.body.scores;
                 }
-            ).catch(error => {console.log(error); return "Error!";});
-            let noResults;
-            let scores;
-            if (batchResponses === "Error!"){
-                noResults = true;
-            } else {
-                const jsons = await batchResponses.json();
-                console.log(Date.now() - startTime);
-                scores = jsons.body.scores;
-            }
-            for (let i = 0; i < urls.length; i++) {
                 // Get raw scores (-1 to 1, can sometimes be -2 if error on Lambda side) from received jsons
-                const rawEmotionScore = noResults ? 0 : scores.emotion[i];
-                const rawActionScore = noResults ? 0 : scores.usefulness[i];
-                const rawKnowledgeScore = noResults ? 0 : scores.knowledge[i];
+                const rawEmotionScore = noResults ? 0 : scores.emotion[0];
+                const rawActionScore = noResults ? 0 : scores.usefulness[0];
+                const rawKnowledgeScore = noResults ? 0 : scores.knowledge[0];
 
                 // Convert to user-friendly scores (0 to 100)
                 const emotionScore = Number((rawEmotionScore + 1) / 2 * 100).toFixed(0);
@@ -7808,17 +7828,21 @@ cognitoUser.authenticateUser(authDetails, {
                                 device: 'desktop',
                                 clickedUrl: clickedUrl,
                                 userId: pluginUsername.username,
+                                searchTerm: getSearchTerm(),
                             }),
                         }
                     )
                 }
 
                 // Add click function under the click event to link
-                resultsArray[i].querySelector('a').addEventListener("click", function() {click(resultsArray[i].querySelector('a').href, Date.now())});
+                resultsArray[index].querySelector('a').addEventListener("click", function() {click(resultsArray[index].querySelector('a').href, searchTime)});
+
+                const loadingElements = resultsArray[index].parentElement.getElementsByClassName('mindfulness-loading');
+                loadingElements[0].remove();
 
                 // If score is -2, null, or NaN, the actual score couldn't be calculated for some reason; show this to the user
                 if (rawEmotionScore == -2 || emotionScore == null || emotionScore == NaN || rawEmotionScore == undefined || noResults){
-                    resultsArray[i].insertAdjacentHTML(
+                    resultsArray[index].insertAdjacentHTML(
                         'afterend',
                         `<div>
                             <style>
@@ -7832,7 +7856,7 @@ cognitoUser.authenticateUser(authDetails, {
                         </div>`
                     );
                 } else { // Otherwise, show the scores to the user
-                    resultsArray[i].insertAdjacentHTML(
+                    resultsArray[index].insertAdjacentHTML(
                         'afterend',
                         `<div style="display: flex; flex-direction: column; align-items: start; gap: 0.01rem;">
                             <div style="display: flex; align-items: center; gap: 0.4rem;">
@@ -7899,8 +7923,25 @@ cognitoUser.authenticateUser(authDetails, {
                     );
                 }
             }
+
+            // Send separate response for each valid url for better UX experience (less perceived loading, more actual loading off-screen)
+            for (var i = 0; i < urls.length; i++) {
+                const response = await fetch(
+                    `https://9jokmafle1.execute-api.us-east-1.amazonaws.com/prod/sentiment-efs`,
+                    {
+                        ...options,
+                        body: JSON.stringify({
+                            links: [urls[i]],
+                            eventTime: searchTime,
+                            device: 'desktop',
+                            userId: pluginUsername.username,
+                            searchTerm: getSearchTerm(),
+                        }),
+                    }
+                ).catch(error => {console.log(error); return "Error!";}).then(async value => {placeScore(i, value)});
+            }
             // Remove extra space after all scores have loaded
-            document.getElementById("mindfulness-loading").remove();
+            //document.getElementById("mindfulness-loading").remove();
         };
 
     },
