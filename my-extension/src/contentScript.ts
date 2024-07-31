@@ -138,7 +138,7 @@ cognitoUser.authenticateUser(authDetails, {
             async function placeScore (index: number, response: "Error!" | Response) {
                 let noResults;
                 let scores;
-                if (response === "Error!"){
+                if (response === "Error!" || response.status != 200){
                     noResults = true;
                 } else {
                     const jsons = await response.json();
