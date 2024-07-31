@@ -143,7 +143,7 @@ cognitoUser.authenticateUser(authDetails, {
                 } else {
                     const jsons = await response.json();
                     // console.log(Date.now() - startTime);
-                    scores = jsons.body.scores;
+                    scores = jsons.scores;
                 }
                 // Get raw scores (-1 to 1, can sometimes be -2 if error on Lambda side) from received jsons
                 const rawEmotionScore: number = noResults ? 0 : scores.emotion[0];
