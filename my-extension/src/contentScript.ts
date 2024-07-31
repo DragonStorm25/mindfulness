@@ -113,7 +113,7 @@ const userData = {
 
 const cognitoUser = new CognitoUser(userData);
 cognitoUser.authenticateUser(authDetails, {
-    onSuccess: function (result) {
+    onSuccess: async function (result) {
         const accessToken = result.getAccessToken();
         const jwtToken = accessToken.getJwtToken();
         const expires = accessToken.getExpiration();
@@ -130,16 +130,33 @@ cognitoUser.authenticateUser(authDetails, {
             }
         });
 
+        // const options1 = {
+        //     headers: {
+        //         'Content-Type': 'application/json',
+        //         Authorization: `Bearer ${jwtToken}`,
+        //         Origin: 'https://www.google.com',
+        //     },
+        //     method: 'GET',
+        // }
+        // const queryParams = new URLSearchParams({
+        //     UID: "NewTest",
+        //     T: "0"
+        // })
+        // const response1 = await fetch(`https://9jokmafle1.execute-api.us-east-1.amazonaws.com/prod/sentiment-efs?` + queryParams.toString(), options1);
+        // const jsonData1 = await response1.json();
+        // const arrayData1 = Object.values(jsonData1);
+        // console.log(arrayData1);
+
         async function getScores () {
             const {results: resultsArray, urls} = getLinks();
 
             const options = {
-                method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${jwtToken}`,
                     Origin: 'https://www.google.com',
                 },
+                method: 'POST',
             };
 
             const batchResponses: "Error!" | Response = await fetch(
@@ -157,12 +174,12 @@ cognitoUser.authenticateUser(authDetails, {
             ).catch(error => {console.log(error); return "Error!";});
             let noResults;
             let scores;
-            if (batchResponses === "Error!"){
+            if (batchResponses === "Error!" || batchResponses.status !== 200){
                 noResults = true;
             } else {
                 const jsons = await batchResponses.json();
                 console.log(Date.now() - startTime);
-                scores = jsons.body.scores;
+                scores = jsons.scores;
             }
 
             for (let i = 0; i < urls.length; i++) {
