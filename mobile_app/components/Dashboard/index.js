@@ -68,12 +68,20 @@ const Dashboard = ({navigation}) => {
       method: 'GET',
     };
     // console.log(requestOptions);
+    var oneWeekAgo = new Date();
+    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
     const queryParams = new URLSearchParams({
         UID: "NewTest",
-        T: "0"
+        T: oneWeekAgo.valueOf()
     })
     const newResponse = await fetch(`${API_URL_2}?${queryParams.toString()}`, requestOptions)
-    console.log(await newResponse.json())
+    const newJsonData = await newResponse.json()
+    const responseData = newJsonData['Items']
+    console.log("Test")
+    if (responseData) {
+        const emotionScores = responseData.map((x) => x['Emotion'])
+        console.log(emotionScores)
+    }
 
     const response = await fetch(`${API_URL}/score`, requestOptions);
     const jsonData = await response.json();
