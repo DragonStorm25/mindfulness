@@ -71,17 +71,22 @@ const Dashboard = ({navigation}) => {
     var oneWeekAgo = new Date();
     oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
     const queryParams = new URLSearchParams({
-        UID: "NewTest",
+        UID: "AAAA",
         T: oneWeekAgo.valueOf()
     })
     const newResponse = await fetch(`${API_URL_2}?${queryParams.toString()}`, requestOptions)
     const newJsonData = await newResponse.json()
     const responseData = newJsonData['Items']
-    console.log("Test")
+    console.log("Teststart")
     if (responseData) {
-        const emotionScores = responseData.map((x) => x['Emotion'])
+        console.log(responseData)
+        const emotionScores = responseData.map((x) => x['Emotion']["L"]).flat().map((x) => parseFloat(x["S"]))
+        const knowledgeScores = responseData.map((x) => x['Knowledge']["L"]).flat().map((x) => parseFloat(x["S"]))
+        const actionScores = responseData.map((x) => x['Useful']["L"]).flat().map((x) => parseFloat(x["S"]))
+
         console.log(emotionScores)
     }
+    console.log("Testend")
 
     const response = await fetch(`${API_URL}/score`, requestOptions);
     const jsonData = await response.json();
