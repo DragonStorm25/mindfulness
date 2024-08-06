@@ -120,9 +120,6 @@ const Dashboard = ({navigation}) => {
 
     const knowledgeWidthRaw = 100 * ((Number(weeklyScores[2]) + 1) / 2);
     const knowledgeWidthStr = '' + knowledgeWidthRaw + '%';
-    console.log(knowledgeWidthStr);
-    console.log('-----');
-
     setKnowledgeWidth(knowledgeWidthStr);
 
     //  const weekly_scores
@@ -134,47 +131,19 @@ const Dashboard = ({navigation}) => {
     weeklyData['emotion'] = Array(7).fill(0);
     weeklyData['usefulness'] = Array(7).fill(0);
     weeklyData['knowledge'] = Array(7).fill(0);
-    // console.log(weeklyData['emotion']);
-    var counts = Array(7).fill(0);
-    for (const datapoint of rawData) {
-      const datapointDate = Number(datapoint[3]);
-      var differenceDate = curDate - datapointDate;
-      if (differenceDate < 7) {
-        //if data is within a week old
-        const daysAgo = 6 - differenceDate;
-        counts[daysAgo] += 1;
-        const datapointEmotion = datapoint[0];
-        const datapointUsefulness = datapoint[1];
-        const datapointKnowledge = datapoint[2];
 
-        weeklyData['emotion'][daysAgo] += Number(datapointEmotion);
-        weeklyData['usefulness'][daysAgo] += Number(datapointUsefulness);
-        weeklyData['knowledge'][daysAgo] += Number(datapointKnowledge);
-      } else {
-        differenceDate = 4;
-        const daysAgo = 6 - differenceDate;
-        counts[daysAgo] += 1;
-        const datapointEmotion = datapoint[0];
-        const datapointUsefulness = datapoint[1];
-        const datapointKnowledge = datapoint[2];
-        // console.log(datapointEmotion);
+    for (var day = 0; day < 7; day++) {
+        if (scoresByDay[day].length > 0) {
+            const dayEmotionScores = scoresByDay[day].map((x) => x['Emotion']["L"]).flat().map((x) => parseFloat(x["S"])).filter(x => x >= -1)
+            const dayKnowledgeScores = scoresByDay[day].map((x) => x['Knowledge']["L"]).flat().map((x) => parseFloat(x["S"])).filter(x => x >= -1)
+            const dayActionScores = scoresByDay[day].map((x) => x['Useful']["L"]).flat().map((x) => parseFloat(x["S"])).filter(x => x >= -1)
 
-        weeklyData['emotion'][daysAgo] += Number(datapointEmotion);
-        weeklyData['usefulness'][daysAgo] += Number(datapointUsefulness);
-        weeklyData['knowledge'][daysAgo] += Number(datapointKnowledge);
-      }
-    }
-
-    for (var i = 0; i < 7; i++) {
-      const curCount = counts[i];
-      if (curCount !== 0) {
-        weeklyData['emotion'][i] = weeklyData['emotion'][i] / curCount;
-        weeklyData['usefulness'][i] = weeklyData['usefulness'][i] / curCount;
-        weeklyData['knowledge'][i] = weeklyData['knowledge'][i] / curCount;
-      }
+            weeklyData['emotion'][day] = dayEmotionScores.reduce((a, b) => a + b) / dayEmotionScores.length
+            weeklyData['knowledge'][day] = dayKnowledgeScores.reduce((a, b) => a + b) / dayKnowledgeScores.length
+            weeklyData['usefulness'][day] = dayActionScores.reduce((a, b) => a + b) / dayActionScores.length
+        }
     }
     setWeeklyDataObj(weeklyData);
-    // console.log(weeklyData);
   };
 
   useEffect(() => {
