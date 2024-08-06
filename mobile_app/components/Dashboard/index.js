@@ -358,7 +358,7 @@ const Dashboard = ({navigation}) => {
               labels: rotatedDaysOfWeek,
               datasets: [
                 {
-                  color: emotionColor,
+                  color: usefulnessColor,
                   data: weeklyDataObj['usefulness'],
                 },
                 {
