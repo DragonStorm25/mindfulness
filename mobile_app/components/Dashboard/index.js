@@ -137,9 +137,9 @@ const Dashboard = ({navigation}) => {
             const dayKnowledgeScores = scoresByDay[day].map((x) => x['Knowledge']["L"]).flat().map((x) => parseFloat(x["S"])).filter(x => x >= -1)
             const dayActionScores = scoresByDay[day].map((x) => x['Useful']["L"]).flat().map((x) => parseFloat(x["S"])).filter(x => x >= -1)
 
-            weeklyData['emotion'][day] = dayEmotionScores.reduce((a, b) => a + b) / dayEmotionScores.length
-            weeklyData['knowledge'][day] = dayKnowledgeScores.reduce((a, b) => a + b) / dayKnowledgeScores.length
-            weeklyData['usefulness'][day] = dayActionScores.reduce((a, b) => a + b) / dayActionScores.length
+            weeklyData['emotion'][6-day] = dayEmotionScores.reduce((a, b) => a + b) / dayEmotionScores.length
+            weeklyData['knowledge'][6-day] = dayKnowledgeScores.reduce((a, b) => a + b) / dayKnowledgeScores.length
+            weeklyData['usefulness'][6-day] = dayActionScores.reduce((a, b) => a + b) / dayActionScores.length
         }
     }
     setWeeklyDataObj(weeklyData);
