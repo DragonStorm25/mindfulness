@@ -77,7 +77,7 @@ const Dashboard = ({navigation}) => {
     const newResponse = await fetch(`${API_URL_2}?${queryParams.toString()}`, requestOptions)
     const newJsonData = await newResponse.json()
     const responseData = newJsonData['Items']
-    console.log("Teststart")
+
     var weeklyScores = [0, 0, 0]
     if (responseData) {
         console.log(responseData)
@@ -86,8 +86,8 @@ const Dashboard = ({navigation}) => {
         const actionScores = responseData.map((x) => x['Useful']["L"]).flat().map((x) => parseFloat(x["S"]))
 
         const cleanedEmotionScores = emotionScores.filter((x) => x >= -1)
-        const cleanedKnowledgeScores = emotionScores.filter((x) => x >= -1)
-        const cleanedActionScores = emotionScores.filter((x) => x >= -1)
+        const cleanedKnowledgeScores = knowledgeScores.filter((x) => x >= -1)
+        const cleanedActionScores = actionScores.filter((x) => x >= -1)
 
         const weeklyEmotion = cleanedEmotionScores.reduce((a, b) => a + b)/cleanedEmotionScores.length
         const weeklyKnowledge = cleanedKnowledgeScores.reduce((a, b) => a + b)/cleanedKnowledgeScores.length
@@ -95,7 +95,6 @@ const Dashboard = ({navigation}) => {
 
         weeklyScores = [weeklyEmotion, weeklyKnowledge, weeklyAction]
     }
-    console.log("Testend")
 
     const response = await fetch(`${API_URL}/score`, requestOptions);
     const jsonData = await response.json();
