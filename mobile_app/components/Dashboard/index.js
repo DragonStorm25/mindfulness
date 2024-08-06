@@ -78,13 +78,22 @@ const Dashboard = ({navigation}) => {
     const newJsonData = await newResponse.json()
     const responseData = newJsonData['Items']
     console.log("Teststart")
+    var weeklyScores = [0, 0, 0]
     if (responseData) {
         console.log(responseData)
         const emotionScores = responseData.map((x) => x['Emotion']["L"]).flat().map((x) => parseFloat(x["S"]))
         const knowledgeScores = responseData.map((x) => x['Knowledge']["L"]).flat().map((x) => parseFloat(x["S"]))
         const actionScores = responseData.map((x) => x['Useful']["L"]).flat().map((x) => parseFloat(x["S"]))
 
-        console.log(emotionScores)
+        const cleanedEmotionScores = emotionScores.filter((x) => x >= -1)
+        const cleanedKnowledgeScores = emotionScores.filter((x) => x >= -1)
+        const cleanedActionScores = emotionScores.filter((x) => x >= -1)
+
+        const weeklyEmotion = cleanedEmotionScores.reduce((a, b) => a + b)/cleanedEmotionScores.length
+        const weeklyKnowledge = cleanedKnowledgeScores.reduce((a, b) => a + b)/cleanedKnowledgeScores.length
+        const weeklyAction = cleanedActionScores.reduce((a, b) => a + b)/cleanedActionScores.length
+
+        weeklyScores = [weeklyEmotion, weeklyKnowledge, weeklyAction]
     }
     console.log("Testend")
 
@@ -95,15 +104,15 @@ const Dashboard = ({navigation}) => {
     if (arrayData !== undefined) {
       setScores(arrayData[0]);
     }
-    const emotionWidthRaw = 100 * ((Number(arrayData[0]) + 1) / 2);
+    const emotionWidthRaw = 100 * ((Number(weeklyScores[0]) + 1) / 2);
     const emotionWidthStr = '' + emotionWidthRaw + '%';
     setEmotionWidth(emotionWidthStr);
 
-    const usefulnessWidthRaw = 100 * ((Number(arrayData[1]) + 1) / 2);
+    const usefulnessWidthRaw = 100 * ((Number(weeklyScores[1]) + 1) / 2);
     const usefulnessWidthStr = '' + usefulnessWidthRaw + '%';
     setUsefulnessWidth(usefulnessWidthStr);
 
-    const knowledgeWidthRaw = 100 * ((Number(arrayData[2]) + 1) / 2);
+    const knowledgeWidthRaw = 100 * ((Number(weeklyScores[2]) + 1) / 2);
     const knowledgeWidthStr = '' + knowledgeWidthRaw + '%';
     console.log(knowledgeWidthStr);
     console.log('-----');
