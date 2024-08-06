@@ -79,8 +79,8 @@ const Dashboard = ({navigation}) => {
     const responseData = newJsonData['Items']
 
     var weeklyScores = [0, 0, 0]
+    var scoresByDay = Object.fromEntries([0, 1, 2, 3, 4, 5, 6].map(x => [x, []]))
     if (responseData) {
-        console.log(responseData)
         const emotionScores = responseData.map((x) => x['Emotion']["L"]).flat().map((x) => parseFloat(x["S"]))
         const knowledgeScores = responseData.map((x) => x['Knowledge']["L"]).flat().map((x) => parseFloat(x["S"]))
         const actionScores = responseData.map((x) => x['Useful']["L"]).flat().map((x) => parseFloat(x["S"]))
@@ -94,6 +94,13 @@ const Dashboard = ({navigation}) => {
         const weeklyAction = cleanedActionScores.reduce((a, b) => a + b)/cleanedActionScores.length
 
         weeklyScores = [weeklyEmotion, weeklyKnowledge, weeklyAction]
+
+        const scoresByTime = Object.fromEntries(responseData.map(x => [parseInt(x['EventTime']['N']), x]))
+        for (const [key, value] of Object.entries(scoresByTime)) {
+            const timeDif = Date.now() - key
+            const day = Math.floor(timeDif/86400000)
+            scoresByDay[day].push(value)
+        }
     }
 
     const response = await fetch(`${API_URL}/score`, requestOptions);
