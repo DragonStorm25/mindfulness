@@ -67,8 +67,8 @@ const App = () => {
       <ApplicationProvider {...eva} theme={eva.light}>
         <NavigationContainer>
           <Stack.Navigator>
-            <Stack.Screen name="Register" component={Register} />
             <Stack.Screen name="Login" component={Login} />
+            <Stack.Screen name="Register" component={Register} />
             <Stack.Screen name="Settings" component={Settings} />
             <Stack.Screen name="ConfirmAccount" component={ConfirmAccount} />
             {/* <Stack.Screen name="Dashboard" component={Dashboard} /> */}
