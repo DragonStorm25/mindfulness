@@ -137,12 +137,13 @@ const Register = ({navigation}) => {
           />
           <Datepicker
             style={styles.formInput}
-            label="Date of birth"
+            label="Date of birthaaaa"
             date={formValues.dateOfBirth}
             onSelect={nextDate => {
               setFormValues({...formValues, dateOfBirth: nextDate});
             }}
-            placeholder="Date of birth"
+            placeholder="Date of birthaaaa"
+            minDate={new Date("1950-01-01")}
           />
           <FormInput
             label="Password"

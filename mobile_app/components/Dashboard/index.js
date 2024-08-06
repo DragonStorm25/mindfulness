@@ -21,7 +21,7 @@ import {
   Dimensions,
 } from 'react-native';
 import {Button} from '@ui-kitten/components';
-import {API_URL} from '../../env-vars';
+import {API_URL, API_URL_2} from '../../env-vars';
 import Smile from '../Smile';
 import Frown from '../Frown';
 
@@ -68,6 +68,13 @@ const Dashboard = ({navigation}) => {
       method: 'GET',
     };
     // console.log(requestOptions);
+    const queryParams = new URLSearchParams({
+        UID: "NewTest",
+        T: "0"
+    })
+    const newResponse = await fetch(`${API_URL_2}?${queryParams.toString()}`, requestOptions)
+    console.log(await newResponse.json())
+
     const response = await fetch(`${API_URL}/score`, requestOptions);
     const jsonData = await response.json();
     const arrayData = Object.values(jsonData);
