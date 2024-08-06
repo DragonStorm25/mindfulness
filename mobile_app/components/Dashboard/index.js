@@ -329,6 +329,8 @@ const Dashboard = ({navigation}) => {
                 backgroundGradientTo: '#ffffff',
                 decimalPlaces: 2, // optional, defaults to 2dp
                 color: emotionColor,
+                fillShadowGradientFromOpacity:1,
+                fillShadowGradientToOpacity:1,
                 labelColor: (opacity = 1) => `rgba(50, 50, 50, ${opacity})`,
                 style: {
                   borderRadius: 16,
@@ -381,6 +383,8 @@ const Dashboard = ({navigation}) => {
               backgroundGradientTo: '#ffffff',
               decimalPlaces: 2, // optional, defaults to 2dp
               color: usefulnessColor,
+              fillShadowGradientFromOpacity:1,
+              fillShadowGradientToOpacity:1,
               labelColor: (opacity = 1) => `rgba(50, 50, 50, ${opacity})`,
               style: {
                 borderRadius: 16,
@@ -432,6 +436,8 @@ const Dashboard = ({navigation}) => {
               backgroundGradientTo: '#ffffff',
               decimalPlaces: 2, // optional, defaults to 2dp
               color: knowledgeColor,
+              fillShadowGradientFromOpacity:1,
+              fillShadowGradientToOpacity:1,
               labelColor: (opacity = 1) => `rgba(50, 50, 50, ${opacity})`,
               style: {
                 borderRadius: 16,
