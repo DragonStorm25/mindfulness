@@ -143,7 +143,7 @@ const Register = ({navigation}) => {
               setFormValues({...formValues, dateOfBirth: nextDate});
             }}
             placeholder="Date of birth"
-            minDate={new Date("1990-01-01")}
+            min={new Date("1950-01-01")}
           />
           <FormInput
             label="Password"
