@@ -67,7 +67,6 @@ const Dashboard = ({navigation}) => {
       },
       method: 'GET',
     };
-    // console.log(requestOptions);
     var oneWeekAgo = new Date();
     oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
     const queryParams = new URLSearchParams({
@@ -106,7 +105,7 @@ const Dashboard = ({navigation}) => {
     const response = await fetch(`${API_URL}/score`, requestOptions);
     const jsonData = await response.json();
     const arrayData = Object.values(jsonData);
-    console.log('out', arrayData);
+
     if (arrayData !== undefined) {
       setScores(arrayData[0]);
     }
@@ -147,7 +146,6 @@ const Dashboard = ({navigation}) => {
   };
 
   useEffect(() => {
-    console.log('GET scoresDashboard');
     getUserScores();
   }, []);
 
